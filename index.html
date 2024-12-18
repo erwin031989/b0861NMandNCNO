@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Data Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background-color: #2E5E41;
+            color: white;
+        }
+        .total {
+            background-color: #FFFF99;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        button, select {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>TARGET NEW MEMBER</h1>
+
+    <!-- Week Dropdown -->
+    <label for="weekSelect">Select Week: </label>
+    <select id="weekSelect">
+        <option value="" disabled selected>Select Week</option>
+        <!-- JavaScript will populate options here -->
+    </select>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Column 1</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- MFO 1 Row -->
+            <tr>
+                <td>MFO 1</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 2 Row -->
+            <tr>
+                <td>MFO 2</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 3 Row -->
+            <tr>
+                <td>MFO 3</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 4 Row -->
+            <tr>
+                <td>MFO 4</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>TOTAL</strong></td>
+                <td id="monTotal">0</td>
+                <td id="tueTotal">0</td>
+                <td id="wedTotal">0</td>
+                <td id="thuTotal">0</td>
+                <td id="friTotal">0</td>
+                <td id="grandTotal">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <button onclick="saveData()">Save Data</button>
+    <button onclick="loadData()">View Saved Data</button>
+    <button onclick="clearData()">Delete Saved Data</button>
+
+    <script>
+        // Populate dropdown with Week 1 to Week 55
+        const weekSelect = document.getElementById("weekSelect");
+        for (let i = 1; i <= 55; i++) {
+            const option = document.createElement("option");
+            option.value = `Week ${i}`;
+            option.textContent = `Week ${i}`;
+            weekSelect.appendChild(option);
+        }
+
+        // Update row totals dynamically
+        function updateRowTotal(input) {
+            const row = input.parentNode.parentNode;
+            let total = 0;
+
+            row.querySelectorAll("input").forEach(cell => {
+                total += parseInt(cell.value) || 0;
+            });
+
+            row.querySelector(".total").innerText = total;
+            updateColumnTotals();
+        }
+
+        // Update column totals and grand total
+        function updateColumnTotals() {
+            let monTotal = 0, tueTotal = 0, wedTotal = 0, thuTotal = 0, friTotal = 0, grandTotal = 0;
+
+            document.querySelectorAll("#tableBody tr").forEach(row => {
+                const inputs = row.querySelectorAll("input");
+                monTotal += parseInt(inputs[0].value) || 0;
+                tueTotal += parseInt(inputs[1].value) || 0;
+                wedTotal += parseInt(inputs[2].value) || 0;
+                thuTotal += parseInt(inputs[3].value) || 0;
+                friTotal += parseInt(inputs[4].value) || 0;
+
+                grandTotal += parseInt(row.querySelector(".total").innerText) || 0;
+            });
+
+            document.getElementById("monTotal").innerText = monTotal;
+            document.getElementById("tueTotal").innerText = tueTotal;
+            document.getElementById("wedTotal").innerText = wedTotal;
+            document.getElementById("thuTotal").innerText = thuTotal;
+            document.getElementById("friTotal").innerText = friTotal;
+            document.getElementById("grandTotal").innerText = grandTotal;
+        }
+
+        // Save data to localStorage with week
+        function saveData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week before saving.");
+                return;
+            }
+
+            const tableData = [];
+
+            document.querySelectorAll("#tableBody tr").forEach(row => {
+                const rowData = [];
+                row.querySelectorAll("input").forEach(input => {
+                    rowData.push(input.value || "0");
+                });
+                rowData.push(row.querySelector(".total").innerText);
+                tableData.push(rowData);
+            });
+
+            localStorage.setItem(`weeklyData_${week}`, JSON.stringify(tableData));
+            alert(`Data for ${week} saved successfully!`);
+            clearTable(); // Clear table inputs and totals after saving
+        }
+
+        // Clear the table after saving
+        function clearTable() {
+            document.querySelectorAll("#tableBody input").forEach(input => input.value = "");
+            document.querySelectorAll(".total").forEach(cell => cell.innerText = "0");
+            document.getElementById("monTotal").innerText = "0";
+            document.getElementById("tueTotal").innerText = "0";
+            document.getElementById("wedTotal").innerText = "0";
+            document.getElementById("thuTotal").innerText = "0";
+            document.getElementById("friTotal").innerText = "0";
+            document.getElementById("grandTotal").innerText = "0";
+        }
+
+        // Load saved data for a selected week
+        function loadData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week to view data.");
+                return;
+            }
+
+            const savedData = JSON.parse(localStorage.getItem(`weeklyData_${week}`));
+            if (!savedData) {
+                alert(`No saved data found for ${week}!`);
+                return;
+            }
+
+            const rows = document.querySelectorAll("#tableBody tr");
+            savedData.forEach((rowData, i) => {
+                const inputs = rows[i].querySelectorAll("input");
+                inputs.forEach((input, j) => input.value = rowData[j]);
+                rows[i].querySelector(".total").innerText = rowData[5];
+            });
+
+            updateColumnTotals();
+            alert(`Data for ${week} loaded successfully!`);
+        }
+
+        // Clear saved data for a selected week
+        function clearData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week to delete data.");
+                return;
+            }
+
+            localStorage.removeItem(`weeklyData_${week}`);
+            alert(`Saved data for ${week} deleted successfully!`);
+        }
+    </script>
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background-color: #2E5E41;
+            color: white;
+        }
+        .total {
+            background-color: #FFFF99;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        button, select {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>NO CLIENT NO OFFSET</h1>
+
+    <!-- Week Dropdown -->
+    <label for="weekSelect">Select Week: </label>
+    <select id="weekSelect">
+        <option value="" disabled selected>Select Week</option>
+        <!-- JavaScript will populate options here -->
+    </select>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Column 1</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- MFO 1 Row -->
+            <tr>
+                <td>MFO 1</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 2 Row -->
+            <tr>
+                <td>MFO 2</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 3 Row -->
+            <tr>
+                <td>MFO 3</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+            <!-- MFO 4 Row -->
+            <tr>
+                <td>MFO 4</td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td><input type="number" oninput="updateRowTotal(this)"></td>
+                <td class="total">0</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>TOTAL</strong></td>
+                <td id="monTotal">0</td>
+                <td id="tueTotal">0</td>
+                <td id="wedTotal">0</td>
+                <td id="thuTotal">0</td>
+                <td id="friTotal">0</td>
+                <td id="grandTotal">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <button onclick="saveData()">Save Data</button>
+    <button onclick="loadData()">View Saved Data</button>
+    <button onclick="clearData()">Delete Saved Data</button>
+
+    <script>
+        // Populate dropdown with Week 1 to Week 55
+        const weekSelect = document.getElementById("weekSelect");
+        for (let i = 1; i <= 55; i++) {
+            const option = document.createElement("option");
+            option.value = `Week ${i}`;
+            option.textContent = `Week ${i}`;
+            weekSelect.appendChild(option);
+        }
+
+        // Update row totals dynamically
+        function updateRowTotal(input) {
+            const row = input.parentNode.parentNode;
+            let total = 0;
+
+            row.querySelectorAll("input").forEach(cell => {
+                total += parseInt(cell.value) || 0;
+            });
+
+            row.querySelector(".total").innerText = total;
+            updateColumnTotals();
+        }
+
+        // Update column totals and grand total
+        function updateColumnTotals() {
+            let monTotal = 0, tueTotal = 0, wedTotal = 0, thuTotal = 0, friTotal = 0, grandTotal = 0;
+
+            document.querySelectorAll("#tableBody tr").forEach(row => {
+                const inputs = row.querySelectorAll("input");
+                monTotal += parseInt(inputs[0].value) || 0;
+                tueTotal += parseInt(inputs[1].value) || 0;
+                wedTotal += parseInt(inputs[2].value) || 0;
+                thuTotal += parseInt(inputs[3].value) || 0;
+                friTotal += parseInt(inputs[4].value) || 0;
+
+                grandTotal += parseInt(row.querySelector(".total").innerText) || 0;
+            });
+
+            document.getElementById("monTotal").innerText = monTotal;
+            document.getElementById("tueTotal").innerText = tueTotal;
+            document.getElementById("wedTotal").innerText = wedTotal;
+            document.getElementById("thuTotal").innerText = thuTotal;
+            document.getElementById("friTotal").innerText = friTotal;
+            document.getElementById("grandTotal").innerText = grandTotal;
+        }
+
+        // Save data to localStorage with week
+        function saveData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week before saving.");
+                return;
+            }
+
+            const tableData = [];
+
+            document.querySelectorAll("#tableBody tr").forEach(row => {
+                const rowData = [];
+                row.querySelectorAll("input").forEach(input => {
+                    rowData.push(input.value || "0");
+                });
+                rowData.push(row.querySelector(".total").innerText);
+                tableData.push(rowData);
+            });
+
+            localStorage.setItem(`weeklyData_${week}`, JSON.stringify(tableData));
+            alert(`Data for ${week} saved successfully!`);
+            clearTable(); // Clear table inputs and totals after saving
+        }
+
+        // Clear the table after saving
+        function clearTable() {
+            document.querySelectorAll("#tableBody input").forEach(input => input.value = "");
+            document.querySelectorAll(".total").forEach(cell => cell.innerText = "0");
+            document.getElementById("monTotal").innerText = "0";
+            document.getElementById("tueTotal").innerText = "0";
+            document.getElementById("wedTotal").innerText = "0";
+            document.getElementById("thuTotal").innerText = "0";
+            document.getElementById("friTotal").innerText = "0";
+            document.getElementById("grandTotal").innerText = "0";
+        }
+
+        // Load saved data for a selected week
+        function loadData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week to view data.");
+                return;
+            }
+
+            const savedData = JSON.parse(localStorage.getItem(`weeklyData_${week}`));
+            if (!savedData) {
+                alert(`No saved data found for ${week}!`);
+                return;
+            }
+
+            const rows = document.querySelectorAll("#tableBody tr");
+            savedData.forEach((rowData, i) => {
+                const inputs = rows[i].querySelectorAll("input");
+                inputs.forEach((input, j) => input.value = rowData[j]);
+                rows[i].querySelector(".total").innerText = rowData[5];
+            });
+
+            updateColumnTotals();
+            alert(`Data for ${week} loaded successfully!`);
+        }
+
+        // Clear saved data for a selected week
+        function clearData() {
+            const week = weekSelect.value;
+            if (!week) {
+                alert("Please select a week to delete data.");
+                return;
+            }
+
+            localStorage.removeItem(`weeklyData_${week}`);
+            alert(`Saved data for ${week} deleted successfully!`);
+        }
+    </script>
+
+</body>
+</html>
